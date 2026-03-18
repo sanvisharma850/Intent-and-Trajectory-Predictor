@@ -1,0 +1,26 @@
+# ──────────────────────────────────────────────────────────────────────────────
+# IntentFormer-3D — Python dependencies
+# ──────────────────────────────────────────────────────────────────────────────
+
+# Deep learning framework
+torch>=2.0.0
+torchvision>=0.15.0
+
+# nuScenes devkit (includes pyquaternion)
+nuscenes-devkit>=1.1.11
+
+# Numerical computing
+numpy>=1.24.0
+scipy>=1.10.0
+
+# Visualisation
+matplotlib>=3.7.0
+
+# Config parsing
+pyyaml>=6.0
+
+# Progress bars (optional but used by the devkit)
+tqdm>=4.65.0
+
+# Logging (optional)
+tensorboard>=2.13.0
