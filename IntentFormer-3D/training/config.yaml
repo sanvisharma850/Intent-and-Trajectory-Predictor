@@ -1,0 +1,54 @@
+# ──────────────────────────────────────────────────────────────────────────────
+# IntentFormer-3D — Configuration
+# ──────────────────────────────────────────────────────────────────────────────
+
+# ── Dataset ───────────────────────────────────────────────────────────────────
+nuscenes_dataroot: "/data/nuscenes"          # path to nuScenes dataset root
+nuscenes_version:  "v1.0-trainval"           # v1.0-mini | v1.0-trainval
+train_split:       "train"
+val_split:         "val"
+
+# ── Data processing ───────────────────────────────────────────────────────────
+max_neighbours:    10       # max neighbour agents per sample
+d_input:           6        # input feature dim per history step (x,y,cos,sin,vx,vy)
+d_lidar:           6        # LiDAR context feature dimension
+T_hist:            5        # history window length (steps) — current + 4 past
+T_fut:             6        # future prediction horizon (steps)
+
+# ── Model architecture ────────────────────────────────────────────────────────
+d_model:           128      # Transformer / attention model width
+n_heads:           4        # multi-head attention heads
+n_temporal_layers: 2        # stacked Transformer encoder layers
+d_ff:              256      # feed-forward hidden dimension
+dropout:           0.1      # dropout probability
+K:                 3        # number of GMM mixture components
+num_intent_classes: 4       # STRAIGHT / TURNING / CROSSING / WAITING
+
+# ── Training ──────────────────────────────────────────────────────────────────
+epochs:            50
+batch_size:        64
+num_workers:       4        # DataLoader worker processes
+
+# ── Optimiser ─────────────────────────────────────────────────────────────────
+lr:                1.0e-3
+weight_decay:      1.0e-4
+grad_clip:         1.0      # gradient norm clipping (0 = disabled)
+
+# ── LR scheduler (linear warmup + cosine decay) ───────────────────────────────
+warmup_epochs:     5
+min_lr_ratio:      0.01     # minimum LR as a fraction of peak LR
+
+# ── Loss weights ──────────────────────────────────────────────────────────────
+lambda_traj:       1.0      # weight for GMM NLL trajectory loss
+lambda_intent:     1.0      # weight for intent cross-entropy loss
+
+# ── Checkpointing & logging ───────────────────────────────────────────────────
+checkpoint_dir:    "checkpoints"
+save_every_epochs: 10       # save a periodic checkpoint every N epochs
+log_every:         50       # log to console every N training steps
+
+# ── Reproducibility ───────────────────────────────────────────────────────────
+seed:              42
+
+# ── Hardware ──────────────────────────────────────────────────────────────────
+device:            "cuda"   # "cuda" | "cpu" | "mps"
