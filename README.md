@@ -1,7 +1,7 @@
 # IntentFormer — Pedestrian & Cyclist Trajectory Prediction
 
-> **Track:** Intent & Trajectory Prediction · **Focus:** Behavioral AI & Temporal Modeling  
-> **Dataset:** nuScenes v1.0-trainval · **Platform:** Kaggle (GPU T4)
+ **Track:** Intent & Trajectory Prediction · **Focus:** Behavioral AI & Temporal Modeling  
+ **Dataset:** nuScenes v1.0-trainval · **Platform:** Kaggle (GPU T4)
 
 A multimodal trajectory prediction model for pedestrians and cyclists using the nuScenes dataset. IntentFormer combines Transformer-based temporal encoding, social context (neighboring agents), LiDAR features, and intent classification to generate diverse, probabilistic future trajectory predictions.
 
@@ -133,7 +133,7 @@ Processes raw nuScenes data into training-ready tensors.
 - Converts to agent-centric coordinates and infers intent labels
 - Normalizes trajectories and saves all outputs
 
-> ⚠️ Cell 2 takes ~15 min; Cell 7 takes ~2 hrs on Kaggle GPU T4 ×2.
+ Cell 2 takes ~15 min; Cell 7 takes ~2 hrs on Kaggle GPU T4 ×2
 
 ```
 Run all cells → Save outputs as dataset `intentformer-nb1-out`
@@ -201,9 +201,6 @@ Intent-and-Trajectory-Predictor/
 ├── 03-eval-v2.ipynb          # Evaluation + visualization
 └── README.md
 ```
-
-> 📌 The repository must be **publicly accessible** during evaluation.
-
 ---
 
 ## Notes
