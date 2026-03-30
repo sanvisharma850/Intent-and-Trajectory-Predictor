@@ -1,7 +1,12 @@
+
 # IntentFormer — Pedestrian & Cyclist Trajectory Prediction
 
- **Track:** Intent & Trajectory Prediction · **Focus:** Behavioral AI & Temporal Modeling  
- **Dataset:** nuScenes v1.0-trainval · **Platform:** Kaggle (GPU T4)
+<p align="center">
+  <img src="assets/hero.png" width="90%" />
+</p>
+
+**Track:** Intent & Trajectory Prediction · **Focus:** Behavioral AI & Temporal Modeling  
+**Dataset:** nuScenes v1.0-trainval · **Platform:** Kaggle (GPU T4)
 
 A multimodal trajectory prediction model for pedestrians and cyclists using the nuScenes dataset. IntentFormer combines Transformer-based temporal encoding, social context (neighboring agents), LiDAR features, and intent classification to generate diverse, probabilistic future trajectory predictions.
 
@@ -9,9 +14,16 @@ A multimodal trajectory prediction model for pedestrians and cyclists using the 
 
 ## Project Overview
 
-IntentFormer predicts the future paths of pedestrians and cyclists in autonomous driving scenarios. Given a short observation window (2 seconds / 4 frames), the model outputs **K multimodal trajectory hypotheses** as a Gaussian Mixture Model (GMM), along with an **intent classification** (e.g., walking, waiting, turning). The model is evaluated on the [nuScenes v1.0-trainval](https://www.nuscenes.org/) dataset.
+IntentFormer predicts the future paths of pedestrians and cyclists in autonomous driving scenarios. Given a short observation window (**2 seconds / 4 frames**), the model outputs **K multimodal trajectory hypotheses** as a **Gaussian Mixture Model (GMM)**, along with an **intent classification** (e.g., walking, waiting, turning).
 
-**Key capabilities:**
+<p align="center">
+  <img src="assets/trajectory.png" width="75%" />
+</p>
+
+The model is evaluated on the [nuScenes v1.0-trainval](https://www.nuscenes.org/) dataset.
+
+### Key Capabilities
+
 - Multimodal future prediction (K hypotheses with learned mixture weights π)
 - Intent classification (waiting, walking, turning left/right)
 - Social context via neighbor trajectory encoding
@@ -22,28 +34,46 @@ IntentFormer predicts the future paths of pedestrians and cyclists in autonomous
 
 ## Model Architecture
 
+<p align="center">
+  <img src="intentformer_architecture.png" width="85%" />
+</p>
+
 IntentFormer is composed of three main components:
 
 ### 1. TemporalEncoder
-A Transformer encoder with sinusoidal positional encoding that processes the agent's past trajectory (4 frames × 4 features: normalized Δx, Δy, speed, heading).
+Transformer encoder with sinusoidal positional encoding processing past trajectory:
+- 4 frames × 4 features (Δx, Δy, speed, heading)
 
 ### 2. SocialEncoder
-Encodes up to 5 neighboring agents' past trajectories (within a 20m radius) using a shared Transformer encoder, then mean-pools across neighbors to produce a fixed-size social context vector.
+- Encodes up to **5 neighboring agents**
+- Uses shared Transformer encoder
+- Mean-pooling to generate social context vector
+
+<p align="center">
+  <img src="assets/social_context.png" width="70%" />
+</p>
 
 ### 3. IntentFormer (Full Model)
-Combines the temporal encoding, social context, and LiDAR features to:
-- Predict **K trajectory modes** (each as a sequence of bivariate Gaussian parameters: μ, σ, ρ)
-- Predict **mixture weights π** per mode
-- Classify **agent intent** (4 classes)
+Combines temporal encoding + social context + LiDAR features to:
 
-**Training losses:**
-- `GMM-NLL` — Bivariate Gaussian negative log-likelihood for trajectory regression
-- `Diversity loss` — Penalizes mode collapse
-- `Intent CE` — Cross-entropy loss for intent classification
+- Predict **K trajectory modes** (Gaussian parameters: μ, σ, ρ)
+- Predict **mixture weights π**
+- Classify **agent intent (4 classes)**
 
-**Hyperparameters (defaults):**
+---
+
+### Training Losses
+
+- **GMM-NLL** — trajectory regression  
+- **Diversity Loss** — prevents mode collapse  
+- **Intent CE** — intent classification  
+
+---
+
+### Hyperparameters
+
 | Parameter | Value |
-|-----------|-------|
+|----------|------|
 | d_model | 256 |
 | Attention heads | 4 |
 | Transformer layers | 3 |
@@ -56,23 +86,30 @@ Combines the temporal encoding, social context, and LiDAR features to:
 
 ## Dataset
 
-**nuScenes v1.0-trainval** — a large-scale autonomous driving dataset with:
-- 1000 scenes (~20s each) with 2Hz annotations
-- Target categories: `human.pedestrian.*` and `vehicle.bicycle`
-- Neighbor radius: 20 m, max 5 neighbors per agent
+**nuScenes v1.0-trainval**
 
-**Data split:**
+- 1000 scenes (~20s each, 2Hz)
+- Categories:
+  - `human.pedestrian.*`
+  - `vehicle.bicycle`
+- Neighbor radius: **20 m (max 5 neighbors)**
+
+### Data Split
+
 | Split | Scenes |
-|-------|--------|
-| Train | nuScenes official train split |
+|------|--------|
+| Train | Official train split |
 | Val | First 100 val scenes |
 | Test | Remaining val scenes |
 
-**Preprocessed outputs from Notebook 1:**
-- `trajectories.csv` — agent-centric normalized tracks
-- `neighbors.pkl` — neighbor trajectory tensors per sample
-- `lidar_feats.pkl` — LiDAR occupancy features per sample
-- `norm_stats.csv` — normalization statistics (std_x, std_y)
+---
+
+### Preprocessed Outputs (Notebook 1)
+
+- `trajectories.csv`
+- `neighbors.pkl`
+- `lidar_feats.pkl`
+- `norm_stats.csv`
 
 ---
 
@@ -81,6 +118,7 @@ Combines the temporal encoding, social context, and LiDAR features to:
 ### Requirements
 
 ```
+
 Python 3.9+
 PyTorch (CUDA-enabled)
 nuscenes-devkit
@@ -91,141 +129,98 @@ tqdm
 pandas
 numpy
 matplotlib
-```
 
-### Install dependencies
+````
+
+### Install
 
 ```bash
 pip install nuscenes-devkit --no-deps
 pip install pyquaternion cachetools fire tqdm pandas numpy matplotlib torch
-```
+````
 
-### Kaggle setup (recommended — GPU T4 ×2)
 
-1. Add datasets to your Kaggle notebook:
-   - [`mariaamm/nuscenes-trainval-metadata`](https://www.kaggle.com/datasets/mariaamm/nuscenes-trainval-metadata)
-   - [`adecours/nuscenes-fulldataset-1-510-trainval`](https://www.kaggle.com/datasets/adecours/nuscenes-fulldataset-1-510-trainval)
-2. Settings → Accelerator → **GPU T4 ×2**
-3. Run all cells in each notebook in order (NB1 → NB2 → NB3)
-4. After NB1 finishes: Save Version → Output tab → "New Dataset from Output" → name it `intentformer-nb1-out`
-5. Attach `intentformer-nb1-out` as input to NB2; repeat for NB2 output before running NB3
-
-### Colab setup
-
-1. Mount Google Drive in Cell 1 of each notebook
-2. Run Cell 1 first in NB1 — it installs `kagglehub` and downloads both datasets (~150 GB total)
-3. Ensure `kaggle.json` is present at `~/.kaggle/` or set `KAGGLE_USERNAME` / `KAGGLE_KEY` env vars
-4. All outputs are saved to `MyDrive/intentformer/` and shared across notebooks automatically
 
 ---
 
-## How to Run
+## Results
 
-The project is structured as three sequential Jupyter notebooks:
+### Evaluation Metrics
 
-### Notebook 1 — Data Preparation (`01-dataprep-v2.ipynb`)
-
-Processes raw nuScenes data into training-ready tensors.
-
-- Downloads/locates nuScenes metadata and LiDAR blobs
-- Extracts global agent tracks across all scenes
-- Builds sliding windows (past 4 frames + future 6 frames)
-- Converts to agent-centric coordinates and infers intent labels
-- Normalizes trajectories and saves all outputs
-
- Cell 2 takes ~15 min; Cell 7 takes ~2 hrs on Kaggle GPU T4 ×2
-
-```
-Run all cells → Save outputs as dataset `intentformer-nb1-out`
-```
-
-### Notebook 2 — Model Training (`02-model-train-v2.ipynb`)
-
-Trains IntentFormer on the preprocessed data.
-
-- Loads `trajectories.csv`, `neighbors.pkl`, `lidar_feats.pkl`
-- Trains with mixed-precision (AMP), `DataParallel` on multi-GPU
-- Saves best checkpoint (`best_intentformer.pt`) based on val π-ADE
-- Saves training history (`training_history.csv`)
-- Evaluates a Constant Velocity (CV) baseline on the test set
-
-```
-Update INPUT_DIR to point to NB1 output → Run all cells
-```
-
-### Notebook 3 — Evaluation (`03-eval-v2.ipynb`)
-
-Comprehensive evaluation and visualization.
-
-- Loads best model checkpoint
-- Runs mode selection strategies: π-greedy, CV-closest, min-uncertainty, and combined weighted ranking
-- Grid-searches optimal combination weights on the validation set
-- Reports test metrics with 95% bootstrap confidence intervals
-- Generates visualizations: trajectory plots, temporal ADE curve, mode weight distribution
-
-```
-Update INPUT_DIR and MODEL_PATH → Run all cells
-```
+| Metric       | Description            |
+| ------------ | ---------------------- |
+| minADE@K     | Oracle ADE             |
+| minFDE@K     | Oracle FDE             |
+| π-ADE        | Top-weighted mode      |
+| cv-ADE       | Closest to CV baseline |
+| combined-ADE | Weighted ranking       |
 
 ---
 
-## Example Outputs / Results
+### Visual Outputs
 
-### Evaluation Metrics (test set)
+<p align="center">
+  <img src="Training_Output/trajectory_predictions.png" width="80%" />
+</p>
 
-| Metric | Description |
-|--------|-------------|
-| **minADE@K** | Min average displacement error across K modes (oracle) |
-| **minFDE@K** | Min final displacement error across K modes (oracle) |
-| **π-ADE** | ADE using the highest-weight mode (deployment metric) |
-| **cv-ADE** | ADE using the mode closest to constant-velocity prediction |
-| **combined-ADE** | ADE using weighted rank combination of π, CV, uncertainty |
+<p align="center">
+  <img src="Training_Output/temporal_ade_curve.png" width="70%" />
+</p>
 
-Metrics are reported per category (Pedestrian / Bicycle) and overall, with 95% bootstrap CIs.
-
-### Visualizations generated by NB3
-
-- **Trajectory plots** — best, worst, and mode-collapse examples showing past (blue), ground truth (green), and K predicted modes (colored)
-- **Temporal ADE curve** — oracle ADE at each future timestep (0.5 s to 3.0 s)
-- **Mode weight distribution** — histogram of max π weight and entropy across test samples
-- **Training curves** — GMM-NLL, diversity loss, intent CE, and val ADE over epochs
+<p align="center">
+  <img src="Training_Output/mode_weight_distribution.png" width="70%" />
+</p>
 
 ---
-
-<!--## Repository Structure
-
-```
-Intent-and-Trajectory-Predictor/
-├── 01-dataprep-v2.ipynb      # Data preparation pipeline
-├── 02-model-train-v2.ipynb   # Model definition + training
-├── 03-eval-v2.ipynb          # Evaluation + visualization
-└── README.md
-```
--->
 
 ## Repository Structure
+
 ```
 Intent-and-Trajectory-Predictor/
 │
-├── 01-dataprep-v2.ipynb           # Data preparation pipeline (nuScenes)
-├── 02-model-train-v2.ipynb        # IntentFormer training + CV baseline
-├── 03-eval-v2.ipynb               # Evaluation, metrics, visualizations
+├── 01-dataprep-v2.ipynb
+├── 02-model-train-v2.ipynb
+├── 03-eval-v2.ipynb
 │
-├── intentformer_architecture.png  # Model architecture diagram
+├── intentformer_architecture.png
 │
 ├── Training_Output/
-│   ├── evaluation_summary.md         # Test set metrics (ADE, FDE, per-category)
-│   ├── training_curves.png           # Loss, ADE, mode collapse, intent accuracy
-│   ├── trajectory_predictions.png    # Best/worst/collapse sample visualizations
-│   ├── temporal_ade_curve.png        # Per-timestep oracle ADE over 3s horizon
-│   ├── mode_weight_distribution.png  # π weight entropy and collapse analysis
+│   ├── evaluation_summary.md
+│   ├── training_curves.png
+│   ├── trajectory_predictions.png
+│   ├── temporal_ade_curve.png
+│   ├── mode_weight_distribution.png
+│
+├── assets/                     
+│   ├── hero.png
+│   ├── trajectory.png
+│   ├── social_context.png
 │
 ├── .gitignore
 └── README.md
 ```
+
 ---
+
 ## Notes
 
-- All notebooks are self-contained and detect the environment (Kaggle vs. Colab) automatically.
-- Checkpoints are saved without `module.` prefix (DataParallel-safe) for clean reloading.
-- A `no-social` ablation model (`best_nosocial.pt`) can be trained and compared in NB3 to measure the contribution of social context.
+* Notebooks auto-detect Kaggle / Colab environment
+* Checkpoints saved without `module.` prefix (DataParallel-safe)
+* Supports **no-social ablation model** (`best_nosocial.pt`)
+
+---
+
+## Future Work
+
+* Add Transformer vs LSTM baseline comparison
+* Graph-based multi-agent interaction modeling
+* Real-time inference demo (Streamlit)
+* Improved uncertainty calibration
+
+---
+
+## License
+
+MIT License
+
+```
