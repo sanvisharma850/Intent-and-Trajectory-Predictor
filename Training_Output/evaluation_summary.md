@@ -60,7 +60,20 @@
 ---
 
 ## Key Takeaways
+* **minADE@5:** **0.2444 m**      (Oracle performance with K=5 trajectory modes)
 
-- **Best performing method:** pi argmax
-- **Oracle ADE:** 0.2444 m
-- **Best greedy ADE:** 0.2988 m
+* **minFDE@5:** **0.4430 m**      (Final displacement accuracy)
+
+* **Greedy ADE:** **0.2988 m**    (π-argmax selection — realistic deployment scenario)
+
+* **Mode collapse:** **23.2%**    (Improved from **75%** on mini dataset, approaching **20% target**)
+
+* **Temporal consistency:**
+  ADE increases smoothly from **0.064 m → 0.455 m** over 3 seconds    (Indicates physically consistent trajectory prediction)
+
+---
+
+
+
+
+
